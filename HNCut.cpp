@@ -1,5 +1,5 @@
 // Primary header
-#include "plugins/HNCut/HNCut.h"
+#include "HNCut.h"
 
 #include <algorithm>
 #include <cassert>
