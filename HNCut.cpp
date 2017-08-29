@@ -16,50 +16,6 @@
 
 #include <windows.h>
 
-int system_hidden(const char *cmdArgs)
-{
-	PROCESS_INFORMATION pinfo;
-	STARTUPINFO sinfo;
-
-	/*
-	* Allocate and hide console window
-	*/
-	AllocConsole ();
-	ShowWindow (GetConsoleWindow(), 0);
-
-	memset (&sinfo, 0, sizeof (sinfo));
-	sinfo.cb = sizeof (sinfo);
-	CreateProcessA (NULL, (char*)cmdArgs,
-		NULL, NULL, false,
-		0,
-		NULL, NULL, &sinfo, &pinfo);
-	DWORD ret;
-	while (1)
-	{
-		HANDLE array[1];
-		array[0] = pinfo.hProcess;
-		ret = MsgWaitForMultipleObjects (1, array, false, INFINITE,
-			QS_ALLPOSTMESSAGE);
-		if ((ret == WAIT_FAILED) || (ret == WAIT_OBJECT_0))
-			break;
-		/*
-		* Don't block message loop
-		*/
-		MSG msg;
-		while (PeekMessage (&msg, 0, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage (&msg);
-			DispatchMessage (&msg);
-		}
-	}
-
-	DWORD pret;
-	GetExitCodeProcess (pinfo.hProcess, &pret);
-	//    FreeConsole ();
-	return pret;
-}
-
-
 // Declare that this object has AlgorithmBase subclasses
 //  and declare each of those sub-classes
 POCO_BEGIN_MANIFEST(sedeen::algorithm::AlgorithmBase)
