@@ -93,7 +93,7 @@ void HNCut::run() {
   PROCESS_INFORMATION ProcessInfo;
 
   STARTUPINFO StartupInfo;
-  std::string cmd = "HNCut.exe " + inputPath + outputPath;
+  std::string cmd = "HNCut.exe " + inputPath + " " + outputPath;
   char* cmdArgs = (char*)cmd.c_str();
 
   ZeroMemory(&StartupInfo, sizeof(StartupInfo));
