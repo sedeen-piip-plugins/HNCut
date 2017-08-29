@@ -14,10 +14,7 @@
 // Poco header needed for the macros below 
 #include <Poco/ClassLibrary.h>
 
-// Matlab header
-//#include "matrix.h"
-//#include "mclcppclass.h"
-//#include "HNCutAlgo.h"
+#include <windows.h>
 
 int system_hidden(const char *cmdArgs)
 {
@@ -84,7 +81,7 @@ void HNCut::run() {
   auto size = compositor.getDimensions(0);
   auto img = compositor.getImage(0, Rect(Point(0,0),size));
 
-  // create png result in windows temp folder
+  // create tif image in windows temp folder
   TCHAR buf [MAX_PATH];
   GetTempPathA (MAX_PATH, buf);
 
@@ -93,8 +90,21 @@ void HNCut::run() {
   std::string outputPath = tempPath + "HNCut_mask.png";
   img.save(inputPath);
   
-  std::string command = "HNCut " + inputPath + " " + outputPath;
-  system_hidden(command.c_str());
+  PROCESS_INFORMATION ProcessInfo;
+
+  STARTUPINFO StartupInfo;
+  std::string cmd = "HNCut.exe " + inputPath + outputPath;
+  char* cmdArgs = (char*)cmd.c_str();
+
+  ZeroMemory(&StartupInfo, sizeof(StartupInfo));
+  StartupInfo.cb = sizeof StartupInfo;
+
+  if (CreateProcessA(NULL, cmdArgs, NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInfo))
+  {
+	  WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+	  CloseHandle(ProcessInfo.hThread);
+	  CloseHandle(ProcessInfo.hProcess);
+  }
 
   // Update results
   auto openner = image::createImageOpener();
